@@ -1,0 +1,96 @@
+import pandas as pd
+import os
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
+class check_sheet():
+    def __init__(self, filename):
+        self.sheet = filename
+        self.df = pd.read_excel(self.sheet)
+    def preprocess_time(self, time_val):
+        if isinstance(time_val, datetime):
+            return time_val
+        elif "ago" in time_val:
+            if "minute" in time_val:
+                minutes_ago = int(time_val.split()[0])
+                return datetime.now() - relativedelta(minutes=minutes_ago)
+            elif "hour" in time_val:
+                hours_ago = int(time_val.split()[0])
+                return datetime.now() - relativedelta(hours=hours_ago)
+            elif "day" in time_val:
+                days_ago = int(time_val.split()[0])
+                return datetime.now() - relativedelta(days=days_ago)
+        else:
+            return pd.to_datetime(time_val)
+        
+    def count_data_entries(self):
+        df = pd.read_excel(self.sheet)
+        num_entries = len(df) - 1
+        return num_entries
+    
+    def duplicate(self):
+        duplicate_mask = self.df.duplicated(subset=['Title'], keep=False)
+        duplicate_rows = self.df[duplicate_mask]
+        return duplicate_rows['Title']  # Return only the 'Title' column
+    
+    def perform(self):
+        duplicates = self.duplicate()
+        if not duplicates.empty:
+            print("Duplicate rows found. Replacing with the latest ones...")
+            # Preprocess 'Time' column
+            self.df['Time'] = self.df['Time'].apply(self.preprocess_time)
+            # Sort DataFrame by 'Time' column in descending order
+            self.df = self.df.sort_values(by='Time', ascending=False)
+            # Drop duplicate rows based on 'Title' column, keeping the first occurrence (latest)
+            self.df.drop_duplicates(subset='Title', keep='first', inplace=True)
+            # Save the updated DataFrame back to the Excel file
+            self.df.to_excel(self.sheet, index=False)
+            print("Duplicates replaced with the latest ones.")
+        else:
+            print("No duplicate rows found.")
+
+# Exicuet the Check sheet
+help = '''
+. s  | for scan, its provide you lenght of your file and duplicates.
+. rd | for remove duplicates data.
+. c  | for count the number of rows you have in sheet.
+. h  | for help.
+. x  | for exit.
+'''
+
+if __name__ == "__main__":
+    beginOn = input("You just start Check Sheet Script do you want to continuse? y/n: ").lower()
+    if beginOn == 'y' or beginOn =='yes':
+        print(help)
+        sheet = input("plese Enter File you want to scan'Must be .xlsx': ")
+        filename, extension = os.path.splitext(sheet)
+        if extension == '.xlsx':
+            cs = check_sheet(sheet)
+            print(f"{sheet} Successfuly loeaded, Now What do you want us to do?")
+            while True:
+                cmd = input('Please enter any Command: ').lower()
+                if cmd == 's':
+                    duplicate_titles = cs.duplicate()
+                    if not duplicate_titles.empty:
+                        print("Duplicate titles:")
+                        duplicated_titles = duplicate_titles[duplicate_titles.duplicated()]
+                        for index, title in duplicated_titles.items():
+                            print(f"{index} | {title}")  # Print index and title
+                    else:
+                        print("No duplicate titles found.")
+                elif cmd == 'rd':
+                    cs.perform()
+                elif cmd == 'c':
+                    print(f"Number of data entries (excluding index): {cs.count_data_entries()}")
+                elif cmd == 'x' or cmd == 'exit':
+                    break
+                elif cmd == 'h' or cmd == 'help':
+                    print(help)
+                else:
+                    print('Please enter right command')
+            
+        else:
+            print(f"The file you provide is wrong '{sheet}', File must be a '.xlsx' an excel file.")
+    else:
+        print('Thanks for Running')
+            
