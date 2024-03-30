@@ -1,6 +1,6 @@
-# Scan Web Data with MLT
+# Scan Web Data
 
-This repository contains Python scripts designed for scanning and processing web data using Machine Learning Techniques (MLT). The scripts focus on data extraction, duplicate detection, and data storage functionalities.
+This repository contains Python scripts designed for scanning and processing web data. The scripts focus on data extraction, duplicate detection, and data storage functionalities.
 
 ## Contents
 
@@ -20,6 +20,9 @@ Use this script to scrape data from a website. After providing the initial URL, 
 
 ### xleSave.py
 Contains functions `saveToXle` and `count_data_entries` for saving data to an Excel file and counting the number of entries, respectively.
+
+### formation.py
+Manages data transformation tasks, creating Excel sheets and handling missing values, aiding data organization efficiently.
 
 ## How to Run
 
