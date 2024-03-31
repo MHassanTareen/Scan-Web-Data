@@ -66,20 +66,32 @@ class dc_scaning():
                 self.update_url(view_more_url)
                 self.scan_activated()
                 self.add_scan_record('view_more')
-
+                
     def get_more_pages(self):
-        pagination = self.soup.find('ul', class_='pagination')
-        if pagination:
-            base_url = self.url.split('?')[0]  # Extract base URL without parameters
-            page_links = pagination.find_all('a', href=True)
-            for link in page_links:
-                next_page_url = base_url + link['href']  # Construct complete URL
-                print("Scanning next page:", next_page_url)
+        print('get on')
+        base_url = self.url.split('?')[0]  # Extract base URL without parameters
+        current_page = 1
+        pg = 5
+        while current_page <= 365:
+            print('while work')
+            next_50_pages = range(current_page, min(current_page + pg, 365))  # Determine the range of next 50 pages
+
+            for page_num in next_50_pages:
+                next_page_url = f"{base_url}?page={page_num}"  # Construct URL for next page
+                print("Scanning page:", next_page_url)
                 self.update_url(next_page_url)
                 self.scan_activated()
                 self.main_scan()
                 self.add_scan_record('get_more_pages')
-                
+
+            # Prompt the user to continue scanning the next set of 50 pages
+            if current_page + pg <= 365:
+                choice = input(f"Do you want to scan the next set of {pg} pages? (y/n): ").lower()
+                if choice == 'n':
+                    break  # If user does not want to continue, break the loop
+
+            current_page += pg
+    
     def add_scan_record(self, function_name):
         import datetime
         timestamp = datetime.datetime.now().strftime('%I:%M%p %d.%m.%Y')
@@ -97,7 +109,7 @@ class dc_scaning():
 
 
 if __name__ == "__main__":
-    url = 'example.com'
+    url = 'https://dramacool.com.pa/'
 
     scanner = dc_scaning(url)
     scanner.scan_activated()
@@ -117,6 +129,7 @@ if __name__ == "__main__":
         if action == 'view_more' or action == 'vm':
             scanner.view_more()
         elif action == 'pagination'or action == 'pg':
+            print('paging......')
             scanner.get_more_pages()
         else:
             print("Invalid option! Please enter 'view_more' or 'pagination'.")
