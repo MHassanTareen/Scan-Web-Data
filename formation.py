@@ -31,8 +31,14 @@ class FormationSector():
                 return None
         return final_data
     
-    def delNaN(self):
-        pass
+    def delNaN(self, column):
+        try:
+            self.final_data = self.final_data.dropna(subset=[column])
+            print(f"NaN values deleted from column '{column}'.")
+        except KeyError:
+            print(f"Column '{column}' not found in the DataFrame.")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
 
 
 
@@ -61,6 +67,8 @@ if __name__ == "__main__":
         print(old_sheet_df.head())  # Print DataFrame of old sheet before transformation
         final_data = fm.dataTransformation()
         if final_data is not None:
+            fm.delNaN('Status')
+            fm.delNaN('Comment')
             final_data.to_excel(new_sheet, index=False, engine='openpyxl')
             print(f"Transformation completed and saved to '{new_sheet}'.")
             print(f"DataFrame of new sheet:")
