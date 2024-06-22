@@ -109,7 +109,7 @@ class dc_scaning():
 
 
 if __name__ == "__main__":
-    url = 'https://dramacool.com.pa/'
+    url = 'https://example.com/'
 
     scanner = dc_scaning(url)
     scanner.scan_activated()
